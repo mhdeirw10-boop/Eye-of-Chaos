@@ -1,0 +1,10 @@
+html {
+  direction: rtl;
+}
+
+body {
+  direction: rtl;
+  text-align: right;
+  font-family: Arial, "Noto Sans Arabic", sans-serif;
+  line-height: 1.8;
+}
