@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="نظام التحكم والترمينال - عين الفوضى">
+<title>CHAOS SYSTEM | عين الفوضى</title>
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/layout.css">
+<style>
+  .terminal-wrapper {
+    padding: 120px 6% 60px;
+    display: flex;
+    justify-content: center;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 280px;
+    height: 100%;
+    background: #0d0d12;
+    border-left: 1px solid #1a1a24;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar.active {
+    right: 0;
+  }
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1a1a24;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+  }
+  .close-btn {
+    background: none;
+    border: none;
+    color: #ff4444;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  .history-item {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+    background: #13131a;
+    border: 1px solid #1a1a24;
+    color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .history-item:hover {
+    border-color: #00ff66;
+  }
+  .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #333;
+    color: #888;
+    text-decoration: none;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+<a class="logo" href="index.html">CHAOS <b>SYSTEM</b></a>
+<button id="menu">≡</button>
+<nav>
+<button id="openSidebar" style="background:none; border:1px solid #00ff66; color:#00ff66; padding:4px 8px; border-radius:4px; cursor:pointer;" data-i18n="historyBtn">📜 السجل</button>
+<a href="index.html" style="color:#00ff66; text-decoration:none;" data-i18n="backBtn">← العودة للموقع الرئيسي</a>
+<button id="langToggle" style="background:none; border:1px solid #00ff66; color:#00ff66; padding:4px 8px; border-radius:4px; cursor:pointer;" data-i18n="langBtn">🌐 English</button>
+</nav>
+</header>
+
+<main class="terminal-wrapper">
+  <div class="terminal" style="width: 100%;">
+    <div>SYSTEM ARCHIVE // TERMINAL v1.0.4</div>
+    <pre id="out">> SYSTEM READY...
+> Type 'help' to view available commands.</pre>
+    <label>
+      > <input type="text" id="cmd" data-i18n-ph="inputPlaceholder" placeholder="اكتب أمرك هنا..." autofocus autocomplete="off">
+    </label>
+  </div>
+</main>
+
+<aside id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h3 style="margin: 0; font-size: 16px;" data-i18n="sidebarTitle">سجل المحادثات</h3>
+    <button id="closeSidebar" class="close-btn">×</button>
+  </div>
+  
+  <button id="newChatBtn" style="width:100%; margin-bottom: 15px; padding: 8px; background: transparent; border: 1px solid #00ff66; color: #00ff66; border-radius: 4px; cursor: pointer;" data-i18n="newChatBtn">+ محادثة جديدة</button>
+
+  <ul id="historyList" class="history-list"></ul>
+  
+  <a href="index.html" class="back-link" data-i18n="backBtn">← العودة للموقع الرئيسي</a>
+</aside>
+
+<footer>
+<p>&copy; <span id="year"></span> EYE OF CHAOS. All rights reserved.</p>
+</footer>
+
+<!-- ربط ملفات نظام الذكاء الاصطناعي بالترتيب الهندسي الصحيح -->
+<script src="js/brain/translator.js"></script>
+<script src="js/brain/knowledge.js"></script>
+<script src="js/brain/memory.js"></script>
+<script src="js/brain/generator.js"></script>
+<script src="js/brain/core.js"></script>
+<script src="js/brain/commands.js"></script>
+
+
+<!-- سكربت التشغيل والتفاعل مع واجهة المستخدم للترمينال -->
+<script>
+document.getElementById('cmd').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const inputVal = this.value;
+        const outputPre = document.getElementById('out');
+        
+        if (!inputVal.trim()) return;
+
+        // استدعاء محرك ChaosAI لمعالجة الاستعلام
+        const response = ChaosAI.processQuery(inputVal);
+        
+        // عرض الأمر والنتيجة في شاشة الترمينال
+        outputPre.textContent += "\n> " + inputVal + "\n" + response;
+        
+        // تفريغ حقل الإدخال
+        this.value = '';
+        
+        // النزول تلقائياً لأسفل الشاشة
+        outputPre.scrollTop = outputPre.scrollHeight;
+    }
+});
+
+// تعيين السنة الحالية في الفوتر تلقائياً
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<script>
+// تفعيل قائمة الهمبرغر الجانبية (سجل المحادثات)
+const menuBtn = document.getElementById('menu');
+const openSidebarBtn = document.getElementById('openSidebar');
+const closeSidebarBtn = document.getElementById('closeSidebar');
+const sidebar = document.getElementById('sidebar');
+
+function toggleSidebar() {
+    sidebar.classList.toggle('active');
+}
+
+if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);
+if (openSidebarBtn) openSidebarBtn.addEventListener('click', toggleSidebar);
+if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', toggleSidebar);
+</script>
+
+</body>
+</html>
