@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عين الفوضى - إعدادات النظام</title>
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/lang.css">
+</head>
+<body class="dark-theme">
+
+    <!-- تطبيق الثيم المحفوظ مسبقاً فوراً لمنع الوميض البصري -->
+    <script>
+        if (localStorage.getItem('chaosTheme') === 'light-text') {
+            document.body.classList.add('theme-light-text');
+        }
+    </script>
+
+    <!-- القائمة الجانبية (البرغر) -->
+    <div id="sidebar" class="sidebar">
+        <button id="closeSidebar" class="close-btn">&times;</button>
+        <div class="sidebar-links">
+            <a href="index.html">الرئيسية</a>
+            <a href="terminal.html">الترمينال (الذكاء الاصطناعي)</a>
+            <a href="settings.html" class="active">الإعدادات</a>
+        </div>
+    </div>
+
+    <!-- زر القائمة الجانبية -->
+    <button id="openSidebar" class="menu-btn">&#9776; القائمة</button>
+
+    <!-- محتوى صفحة الإعدادات -->
+    <main class="settings-container">
+        <h1>[ وحدة التحكم وإعدادات الوعي ]</h1>
+        <p class="subtitle">تعديل سلوك وذاكرة كيان "عين الفوضى"</p>
+
+        <!-- خيار الذاكرة الحية -->
+        <div class="setting-card">
+            <h3>الذاكرة الحية والتطور الذاتي (Adaptive Memory)</h3>
+            <p>السماح للكيان بتخزين التفاعلات والتعلم المستمر وتطوير إصداراته.</p>
+            <label class="switch">
+                <input type="checkbox" id="memoryToggle" checked>
+                <span class="slider">تفعيل الذاكرة</span>
+            </label>
+        </div>
+
+        <!-- خيار تغيير الثيم (الأبيض البارد) -->
+        <div class="setting-card" style="margin-top: 20px;">
+            <h3>وضع القراءة المريح (أبيض بارد)</h3>
+            <p>تغيير لون النصوص إلى أبيض بارد بوضوح عالٍ لسهولة القراءة وتقليل إجهاد العين.</p>
+            <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider">تفعيل النص الأبيض</span>
+            </label>
+        </div>
+
+        <!-- خيار تطهير الذاكرة -->
+        <div class="setting-card" style="margin-top: 20px;">
+            <h3>تطهير الذاكرة</h3>
+            <p>مسح كافة السجلات المؤقتة وإعادة تعيين إصدار الذاكرة إلى v1.0.</p>
+            <button id="clearMemoryBtn" class="danger-btn">تفريغ الذاكرة فوراً</button>
+        </div>
+        
+        <div id="statusLog" class="status-log" style="margin-top: 20px;">حالة النظام: مستقر وجاهز.</div>
+    </main>
+
+    <!-- ربط ملفات الإعدادات والذاكرة بالترتيب الهندسي الصحيح -->
+    <script src="js/config.js"></script>
+    <script src="js/brain/hippocampus/longTerm.js"></script>
+    <script src="js/brain/hippocampus/hippocampus.js"></script>
+    
+    <script>
+        const memoryToggle = document.getElementById('memoryToggle');
+        const themeToggle = document.getElementById('themeToggle');
+        const clearMemoryBtn = document.getElementById('clearMemoryBtn');
+        const statusLog = document.getElementById('statusLog');
+
+        // 1. إدارة الذاكرة الحية
+        const isMemoryEnabled = localStorage.getItem('chaosMemoryEnabled') !== 'false';
+        memoryToggle.checked = isMemoryEnabled;
+
+        memoryToggle.addEventListener('change', function() {
+            if (this.checked) {
+                localStorage.setItem('chaosMemoryEnabled', 'true');
+                statusLog.textContent = "حالة النظام: تم تفعيل الذاكرة الحية بنجاح.";
+            } else {
+                localStorage.setItem('chaosMemoryEnabled', 'false');
+                statusLog.textContent = "حالة النظام: تم إيقاف الذاكرة (لن يتم حفظ التفاعلات الجديدة).";
+            }
+        });
+
+        // 2. إدارة الثيم (الأبيض البارد)
+        if (localStorage.getItem('chaosTheme') === 'light-text') {
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                document.body.classList.add('theme-light-text');
+                localStorage.setItem('chaosTheme', 'light-text');
+                statusLog.textContent = "حالة النظام: تم تفعيل وضع القراءة (الأبيض البارد).";
+            } else {
+                document.body.classList.remove('theme-light-text');
+                localStorage.setItem('chaosTheme', 'default');
+                statusLog.textContent = "حالة النظام: العودة للثيم الداكن الافتراضي.";
+            }
+        });
+
+        // 3. تفريغ الذاكرة فوراً عبر Hippocampus أو LongTermMemory
+        clearMemoryBtn.addEventListener('click', function() {
+            let resultMsg = "";
+            
+            if (typeof Hippocampus !== 'undefined' && typeof Hippocampus.purgeAll === 'function') {
+                resultMsg = Hippocampus.purgeAll();
+            } else if (typeof LongTermMemory !== 'undefined' && typeof LongTermMemory.forcePurge === 'function') {
+                resultMsg = LongTermMemory.forcePurge();
+            } else {
+                localStorage.removeItem('chaos_persistent_long_term');
+                localStorage.removeItem('chaos_long_term_memory');
+                resultMsg = "HIPPOCAMPUS_PURGE: تمت إزالة كافة السجلات العصبية بنجاح.";
+            }
+
+            statusLog.textContent = resultMsg;
+        });
+
+        // تفعيل القائمة الجانبية (Sidebar)
+        const sidebar = document.getElementById('sidebar');
+        const openSidebar = document.getElementById('openSidebar');
+        const closeSidebar = document.getElementById('closeSidebar');
+
+        if (openSidebar && sidebar) {
+            openSidebar.addEventListener('click', () => sidebar.classList.add('active'));
+        }
+        if (closeSidebar && sidebar) {
+            closeSidebar.addEventListener('click', () => sidebar.classList.remove('active'));
+        }
+    </script>
+</body>
+</html>

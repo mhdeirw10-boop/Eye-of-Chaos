@@ -1,9 +1,12 @@
+// ==========================================
+// CHAOS SYSTEM - Main Application Core (app.js)
+// النواة الرئيسية وربط الوحدات والواجهة
+// ==========================================
+
 // قاموس النصوص الشامل للغتين (الصفحة الرئيسية + الترمينال)
 const i18n = {
   ar: {
     langBtn: "🌐 English",
-
-    // نصوص الصفحة الرئيسية
     navHome: "الرئيسية",
     navLore: "الأسطورة",
     navChars: "الشخصيات",
@@ -12,8 +15,6 @@ const i18n = {
     heroDesc: "بوابة إلى عالم تتداخل فيه الذاكرة والهوية والفوضى والفراغ.",
     btnEnter: "ادخل الأسطورة",
     btnFiles: "الملفات",
-
-    // نصوص صفحة الترمينال
     historyBtn: "📜 السجل",
     sidebarTitle: "سجل المحادثات",
     newChatBtn: "+ محادثة جديدة",
@@ -22,8 +23,6 @@ const i18n = {
   },
   en: {
     langBtn: "🌐 العربية",
-
-    // Main Page Texts
     navHome: "Home",
     navLore: "Lore",
     navChars: "Characters",
@@ -32,8 +31,6 @@ const i18n = {
     heroDesc: "A gateway to a realm where memory, identity, and chaos intertwine.",
     btnEnter: "Enter Lore",
     btnFiles: "Archive Files",
-
-    // Terminal Page Texts
     historyBtn: "📜 History",
     sidebarTitle: "Chat History",
     newChatBtn: "+ New Chat",
@@ -43,6 +40,11 @@ const i18n = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 0. تهيئة النظام والتحقق من وضع التطوير عبر config.js
+  if (typeof ChaosConfig !== 'undefined' && ChaosConfig.debugMode) {
+    console.log(`[CHAOS APP] جاري تهيئة النظام - الإصدار: ${ChaosConfig.version}`);
+  }
+
   // 1. القائمة الجانبية في الهيدر (للموبايل)
   const header = document.querySelector('header');
   const menuBtn = document.getElementById('menu');
@@ -56,9 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
     yearEl.textContent = new Date().getFullYear();
   }
 
-  // 3. نظام إدار اللغتين للواجهة
+  // 3. نظام إدارة اللغتين للواجهة
   const langToggle = document.getElementById('langToggle');
-  let currentLang = localStorage.getItem('chaos_lang') || 'ar';
+  let currentLang = localStorage.getItem('chaos_lang') || (typeof ChaosConfig !== 'undefined' ? ChaosConfig.language : 'ar');
 
   function applyLanguage(lang) {
     currentLang = lang;
@@ -67,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-    // تحديث كل عنصر يحتوي على data-i18n
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (i18n[lang] && i18n[lang][key]) {
@@ -75,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // تحديث الـ Placeholder لخانة الإدخال
     document.querySelectorAll('[data-i18n-ph]').forEach(el => {
       const key = el.getAttribute('data-i18n-ph');
       if (i18n[lang] && i18n[lang][key]) {
@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeSidebar.addEventListener('click', () => sidebar.classList.remove('active'));
   }
 
-  // زر بدء محادثة جديدة
   if (newChatBtn) {
     newChatBtn.addEventListener('click', () => {
       if (out) {
@@ -145,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateSidebarUI();
 
+  // 5. معالجة الأوامر والمدخلات مع ربط الوحدات المركزية (Security & Commands & Memory)
   if (input && out) {
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
@@ -154,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!cleanCmd) return;
 
+        // أ. التعامل الفوري مع أمر المسح
         if (cleanCmd === 'clear') {
           out.textContent = '';
           this.value = '';
@@ -161,14 +162,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let response = '';
-        if (typeof ChaosAI !== 'undefined' && typeof ChaosAI.processQuery === 'function') {
-          response = ChaosAI.processQuery(cleanCmd);
-        } else if (typeof getCommandResponse === 'function') {
-          response = getCommandResponse(cleanCmd);
-        } else {
-          response = 'ERROR: SYSTEM BRAIN NOT LOADED';
+
+        // ب. فحص الأمان عبر security.js أولاً
+        if (typeof ChaosSecurity !== 'undefined') {
+          const securityCheck = ChaosSecurity.inspectQuery(inputVal);
+          if (!securityCheck.safe) {
+            ChaosSecurity.logSecurityEvent(`محاولة محظورة: ${inputVal}`);
+            response = "SECURITY_BLOCK: تم رفض الطلب لأسباب أمنية.";
+            out.textContent += `\n> ${inputVal}\n${response}`;
+            this.value = '';
+            out.scrollTop = out.scrollHeight;
+            return;
+          }
         }
 
+        // ج. توجيه الأمر عبر commands.js (ChaosCommands)
+        if (typeof ChaosCommands !== 'undefined' && typeof ChaosCommands.getCommandResponse === 'function') {
+          const cmdResult = ChaosCommands.getCommandResponse(inputVal);
+          
+          if (cmdResult) {
+            if (typeof cmdResult === "object" && cmdResult.type === "action") {
+              response = cmdResult.message;
+              if (cmdResult.action === "trigger_clear") {
+                out.textContent = '';
+                this.value = '';
+                return;
+              }
+            } else {
+              response = cmdResult;
+            }
+          }
+        }
+
+        // د. إذا لم يتم التعرف على الأمر عبر موجه الأوامر، يتم توجيهه لوحدات الذكاء أو الذاكرة
+        if (!response) {
+          if (typeof ChaosAI !== 'undefined' && typeof ChaosAI.processQuery === 'function') {
+            response = ChaosAI.processQuery(cleanCmd);
+          } else {
+            response = '[استجابة النظام]: تم تلقي الاستعلام بنجاح. (قيد معالجة الوعي والعالم)';
+          }
+        }
+
+        // هـ. حفظ التفاعل في الذاكرة طويلة/قصيرة المدى (Hippocampus) إذا كانت مفعلة
+        if (typeof LongTermMemory !== 'undefined' && typeof LongTermMemory.saveExperience === 'function') {
+          LongTermMemory.saveExperience(inputVal, response);
+        }
+
+        // و. عرض النتائج وتحديث السجل
         out.textContent += `\n> ${inputVal}\n${response}`;
         this.value = '';
         out.scrollTop = out.scrollHeight;

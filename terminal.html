@@ -121,42 +121,31 @@
 <p>&copy; <span id="year"></span> EYE OF CHAOS. All rights reserved.</p>
 </footer>
 
-<!-- ربط ملفات نظام الذكاء الاصطناعي بالترتيب الهندسي الصحيح -->
+<!-- ربط ملفات نظام الذكاء الاصطناعي، الأمان، والذاكرة بالترتيب الهندسي الصحيح -->
+<script src="js/config.js"></script>
+<script src="js/brain/canon.js"></script>
+<script src="js/brain/security.js"></script>
 <script src="js/brain/translator.js"></script>
 <script src="js/brain/knowledge.js"></script>
 <script src="js/brain/memory.js"></script>
 <script src="js/brain/generator.js"></script>
 <script src="js/brain/core.js"></script>
 <script src="js/brain/commands.js"></script>
+<script src="js/brain/webMemory.js"></script>
+<script src="js/brain/webSearch.js"></script>
+<script src="js/brain/hippocampus/longTerm.js"></script>
+<script src="js/brain/hippocampus/hippocampus.js"></script>
 
+<!-- سكربت التشغيل المركزي (app.js) الذي يدير الواجهة، الأوامر، الأمان والذاكرة -->
+<script src="js/app.js"></script>
 
-<!-- سكربت التشغيل والتفاعل مع واجهة المستخدم للترمينال -->
 <script>
-document.getElementById('cmd').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const inputVal = this.value;
-        const outputPre = document.getElementById('out');
-        
-        if (!inputVal.trim()) return;
-
-        // استدعاء محرك ChaosAI لمعالجة الاستعلام
-        const response = ChaosAI.processQuery(inputVal);
-        
-        // عرض الأمر والنتيجة في شاشة الترمينال
-        outputPre.textContent += "\n> " + inputVal + "\n" + response;
-        
-        // تفريغ حقل الإدخال
-        this.value = '';
-        
-        // النزول تلقائياً لأسفل الشاشة
-        outputPre.scrollTop = outputPre.scrollHeight;
-    }
-});
-
 // تعيين السنة الحالية في الفوتر تلقائياً
-document.getElementById('year').textContent = new Date().getFullYear();
-</script>
-<script>
+const yearEl = document.getElementById('year');
+if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+}
+
 // تفعيل قائمة الهمبرغر الجانبية (سجل المحادثات)
 const menuBtn = document.getElementById('menu');
 const openSidebarBtn = document.getElementById('openSidebar');
@@ -164,7 +153,7 @@ const closeSidebarBtn = document.getElementById('closeSidebar');
 const sidebar = document.getElementById('sidebar');
 
 function toggleSidebar() {
-    sidebar.classList.toggle('active');
+    if (sidebar) sidebar.classList.toggle('active');
 }
 
 if (menuBtn) menuBtn.addEventListener('click', toggleSidebar);

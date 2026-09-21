@@ -55,6 +55,17 @@
 <p>&copy; <span id="year"></span> EYE OF CHAOS. All rights reserved.</p>
 </footer>
 
+<!-- ربط الإعدادات والنواة المركزية -->
+<script src="js/config.js"></script>
 <script src="js/app.js"></script>
+
+<script>
+// تعيين السنة الحالية في الفوتر تلقائياً
+const yearEl = document.getElementById('year');
+if (yearEl) {
+    yearEl.textContent = new Date().getFullYear();
+}
+</script>
+
 </body>
 </html>
